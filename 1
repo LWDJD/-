@@ -1,0 +1,79 @@
+import pygame
+import random
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self, plane_img, player_rect, init_pos):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = []
+        for i in range(len(player_rect)):
+            self.image.append(plane_img.subsurface(player_rect[i]).convert_alpha())
+        self.rect = player_rect[0]
+        self.rect.topleft = init_pos
+        self.speed = 8
+        self.bullets = pygame.sprite.Group()
+        self.img_index = 0
+        self.is_hit = False
+
+    def shoot(self, bullet_img):
+        bullet = Bullet(bullet_img, self.rect.midtop)
+        self.bullets.add(bullet)
+
+    def moveUp(self):
+        if self.rect.top <= 0:
+            self.rect.top = 0
+        else:
+            self.rect.top -= self.speed
+
+    def moveDown(self):
+        if self.rect.top >= SCREEN_HEIGHT - self.rect.height:
+            self.rect.top = SCREEN_HEIGHT - self.rect.height
+        else:
+            self.rect.top += self.speed
+
+    def moveLeft(self):
+        if self.rect.left <= 0:
+            self.rect.left = 0
+        else:
+            self.rect.left -= self.speed
+
+    def moveRight(self):
+        if self.rect.left >= SCREEN_WIDTH - self.rect.width:
+            self.rect.left = SCREEN_WIDTH - self.rect.width
+        else:
+            self.rect.left += self.speed
+
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self, enemy_img, enemy_down_imgs, init_pos):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = enemy_img
+        self.rect = self.image.get_rect()
+        self.rect.topleft = init_pos
+        self.down_imgs = enemy_down_imgs
+        self.speed = 2
+        # 敌机被打中后的效果（爆炸）
+        self.down_index = 0
+
+    def move(self):
+        if self.rect.top < SCREEN_HEIGHT:
+            # 移动敌机
+            self.rect.top += self.speed
+        else:
+            # 敌机飞出屏幕后，需要将其从精灵组中删除
+            global score
+            score += 1
+            enemies.remove(self)
+
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, bullet_img, init_pos):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = bullet_img
+        self.rect = self.image.get_rect()
+        # 子弹发射初始化位置
+        self.rect.midbottom = init_pos
+        # 子弹速度，这里是一个负值，因为子弹是从下往上发射的
+        # 每次移动时，将子弹的位置向上移动一定的距离，当子弹飞出屏幕时，需要将其从精灵组中删除
+        # 子弹被敌机击中后，也需要将其从精灵组中删除
+    def update(self):
+        global score
+        if (self.rect.bottom > 0) and (self.rect.bottom < SCREEN_HEIGHT):
+        # 子弹未飞出屏幕时
